@@ -1,0 +1,249 @@
+#include "robot-config.h"
+
+/*++++++++++++++++++++++++++++++++++++++++++++| Notes |++++++++++++++++++++++++++++++++++++++++
+NMS PROGRAM TEAM  2018-19 VRC TURNING POINT
+650R -- RED 01 AUTONOMOUS
+
+Robot Configuration:
+[Smart Port]     [Name]          [Type]              [Description]                   [Reversed]
+Motor Port 4     RightMotorF     V5 Smart Motor      Right Front Drive Motor         false
+Motor Port 5     RightMotorB     V5 Smart Motor      Right Back Drive Motor          false
+Motor Port 1     LeftMotorF      V5 Smart Motor      Left Front Drive Motor          false
+Motor Port 10    LeftMotorB      V5 Smart Motor      Left Back Drive Motor           false
+Motor Port 9     ArmMotor        V5 Smart Motor      Arm Motor                       false
+Motor Port 2     PuncherMotor    V5 Smart Motor      Puncher (Shooter) Motor         false
+Motor Port 8     SpinnerMotor    V5 Smart Motor      Spinner Motor                   false
+-----------------------------------------------------------------------------------------------*/
+
+/*---------------------------------------------------------------------------*/
+/*                                                                           */
+/*        Description: Competition template for VCS VEX V5                   */
+/*                                                                           */
+/*---------------------------------------------------------------------------*/
+
+//Creates a competition object that allows access to Competition methods.
+vex::competition    Competition;
+
+/*---------------------------------------------------------------------------*/
+/*                                                                           */
+/*        Description: Program Variables                                     */
+/*                                                                           */
+/*---------------------------------------------------------------------------*/
+    //Use these variables to set the speed of the arm and claw.
+    int armSpeedPCT = 50;
+    int spinnerMotorSpeedPCT = 50;
+    int puncherSpeedPCT = 100;
+    
+
+/*---------------------------------------------------------------------------*/
+/*                                                                           */
+/*        Description: User Utility Functions                                */
+/*                                                                           */
+/*---------------------------------------------------------------------------*/
+
+void clearEncoders(){
+    RightMotorF.resetRotation();
+    RightMotorB.resetRotation();
+    LeftMotorF.resetRotation();
+    LeftMotorB.resetRotation();
+}
+
+void driveMotorsStop(){
+    RightMotorF.stop();
+    RightMotorB.stop();
+    LeftMotorF.stop();
+    LeftMotorB.stop();
+}
+
+void autonMotorSpeed(int autonMotorSpeed ){
+    RightMotorF.setVelocity(autonMotorSpeed,velocityUnits::rpm);
+    RightMotorB.setVelocity(autonMotorSpeed,velocityUnits::rpm);
+    LeftMotorF.setVelocity(autonMotorSpeed,velocityUnits::rpm);
+    LeftMotorB.setVelocity(autonMotorSpeed,velocityUnits::rpm);
+}
+    
+
+void driverDriveControl(){
+     /** 
+       @Drive Motors Control
+       @Set the left and right motor to spin forward using the controller Axis values as the velocity value.
+       */
+        
+        //Left Motors
+        LeftMotorF.spin(vex::directionType::fwd, Controller1.Axis3.value(), vex::velocityUnits::pct);
+        LeftMotorB.spin(vex::directionType::fwd, Controller1.Axis3.value(), vex::velocityUnits::pct);
+        
+        //Right Motors
+        RightMotorF.spin(vex::directionType::rev, Controller1.Axis2.value(), vex::velocityUnits::pct);
+        RightMotorB.spin(vex::directionType::rev, Controller1.Axis2.value(), vex::velocityUnits::pct);
+}
+
+void driverArmControl(){
+      //Arm Motor Control
+        if(Controller1.ButtonL2.pressing()) { //If button up is pressed...
+            //...Spin the arm motor forward.
+            ArmMotor.spin(vex::directionType::rev, armSpeedPCT, vex::velocityUnits::pct);
+        }
+        else if(Controller1.ButtonL1.pressing()) { //If the down button is pressed...
+            //...Spin the arm motor backward.
+            ArmMotor.spin(vex::directionType::fwd, armSpeedPCT, vex::velocityUnits::pct);
+        }
+        else { //If the the up or down button is not pressed...
+            //...Stop the arm motor.
+            ArmMotor.stop(vex::brakeType::brake);
+        }
+}
+
+void driverShooterControl(){
+    //Puncher Motor Control
+        if(Controller1.ButtonR2.pressing()) { //If button up is pressed...
+            //...Spin the arm motor forward.
+            PuncherMotor.spin(vex::directionType::rev, puncherSpeedPCT, vex::velocityUnits::pct);
+        }
+        else { //If the the up or down button is not pressed...
+            //...Stop the arm motor.
+            PuncherMotor.stop(vex::brakeType::coast);
+        }
+}
+
+void driverSpinnerControl(){
+    //Spinner Control
+        if(Controller1.ButtonR1.pressing()) { //If button up is pressed...
+            //...Spin the spinners clockwise
+            SpinnerMotor.spin(vex::directionType::rev, spinnerMotorSpeedPCT, vex::velocityUnits::pct);
+        }
+        else { //If the the up or down button is not pressed...
+            //...Stop the arm motor.
+            SpinnerMotor.stop(vex::brakeType::coast);
+        }
+}
+
+/*---------------------------------------------------------------------------*/
+/*                          Pre-Autonomous Functions                         */
+/*                                                                           */
+/*  You may want to perform some actions before the competition starts.      */
+/*  Do them in the following function.  You must return from this function   */
+/*  or the autonomous and usercontrol tasks will not be started.  This       */
+/*  function is only called once after the cortex has been powered on and    */
+/*  not every time that the robot is disabled.                               */
+/*---------------------------------------------------------------------------*/
+
+void pre_auton( void ) {
+  // All activities that occur before the competition starts
+  // Example: clearing encoders, setting servo positions, ...
+    clearEncoders();  
+}
+
+/*---------------------------------------------------------------------------*/
+/*                                                                           */
+/*                              Autonomous Task                              */
+/*                                                                           */
+/*  This task is used to control your robot during the autonomous phase of   */
+/*  a VEX Competition.                                                       */
+/*                                                                           */
+/*  You must modify the code to add your own robot specific commands here.   */
+/*---------------------------------------------------------------------------*/
+
+void autonomous( void ) {
+    //**Position RED 01**
+    
+     //Display that the program has started to the screen.
+     Brain.Screen.print("650R Autonomous Program RED01 Has Started");
+    
+    //set auton motor speed
+    autonMotorSpeed(80);
+    
+    //drive forward to hit red bottom flag
+    RightMotorF.startRotateFor(-4.0,rotationUnits::rev);
+    RightMotorB.startRotateFor(-4.0,rotationUnits::rev);
+    LeftMotorF.startRotateFor(4.0,rotationUnits::rev);
+    LeftMotorB.startRotateFor(4.0,rotationUnits::rev);
+    while(RightMotorF.isSpinning()||RightMotorB.isSpinning()||LeftMotorF.isSpinning()||LeftMotorB.isSpinning())
+    {}
+    
+    //stop
+    driveMotorsStop();
+    vex::task::sleep(700);
+    
+    //backup even to platform
+    RightMotorF.startRotateFor(5.8,rotationUnits::rev);
+    RightMotorB.startRotateFor(5.8,rotationUnits::rev);
+    LeftMotorF.startRotateFor(-5.8,rotationUnits::rev);
+    LeftMotorB.startRotateFor(-5.8,rotationUnits::rev);
+    while(RightMotorF.isSpinning()||RightMotorB.isSpinning()||LeftMotorF.isSpinning()||LeftMotorB.isSpinning())
+    {}
+    
+    //stop
+    driveMotorsStop();
+    vex::task::sleep(700);
+    
+    //turn right
+    RightMotorF.startRotateFor(2.0,rotationUnits::rev);
+    RightMotorB.startRotateFor(2.0,rotationUnits::rev);
+    LeftMotorF.startRotateFor(2.0,rotationUnits::rev);
+    LeftMotorB.startRotateFor(2.0,rotationUnits::rev);
+    while(RightMotorF.isSpinning()||RightMotorB.isSpinning()||LeftMotorF.isSpinning()||LeftMotorB.isSpinning())
+    {}
+    
+    //stop
+    driveMotorsStop();
+    vex::task::sleep(700);
+    
+    //Reset motor velocity
+    autonMotorSpeed(100);
+    
+    //go forward upon Red Alliance Platform
+    RightMotorF.startRotateFor(-4.0,rotationUnits::rev);
+    RightMotorB.startRotateFor(-4.0,rotationUnits::rev);
+    LeftMotorF.startRotateFor(4.0,rotationUnits::rev);
+    LeftMotorB.startRotateFor(4.0,rotationUnits::rev);
+    while(RightMotorF.isSpinning()||RightMotorB.isSpinning()||LeftMotorF.isSpinning()||LeftMotorB.isSpinning())
+    {}
+    
+    //stop
+    driveMotorsStop();
+    vex::task::sleep(2000);
+}
+
+/*----------------------------------------------------------------------------*/
+/*                                                                            */
+/*                              User Control Task                             */
+/*                                                                            */
+/*  This task is used to control your robot during the user control phase of  */
+/*  a VEX Competition.                                                        */
+/*                                                                            */
+/*  You must modify the code to add your own robot specific commands here.    */
+/*----------------------------------------------------------------------------*/
+
+void usercontrol( void ) {
+  // User control code here, inside the loop
+  while (1){
+
+        //Display that the program has started to the screen.
+        Brain.Screen.print("650R Driver Control Program Has Started");
+        driverDriveControl();       //start drive control
+        driverArmControl();         //start arm control
+        driverShooterControl();     //start puncher (shooter) control 
+        driverSpinnerControl();
+      
+		vex::task::sleep(20); //Sleep the task for a short amount of time to prevent wasted resources.
+    }    
+}
+
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+// Main will set up the competition functions and callbacks.
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+int main()
+    { 
+    //Run the pre-autonomous function. 
+    pre_auton();
+    
+    //Set up callbacks for autonomous and driver control periods.
+    Competition.autonomous( autonomous );
+    Competition.drivercontrol( usercontrol );
+
+    //Prevent main from exiting with an infinite loop.                        
+    while(1) {
+      vex::task::sleep(100);//Sleep the task for a short amount of time to prevent wasted resources.
+    }    
+}
